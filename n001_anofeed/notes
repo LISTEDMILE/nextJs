@@ -1,0 +1,22 @@
+dekho sabse pehle app bnaya 
+npx create-next-app@latest
+
+ab sabse pehle hm model setup karrhe h initial wala
+
+ab mongoose ke sath hmne Schema aur Document ko bhi import kar liya
+ab ts h to hm ek structure ya schema design karenge apne data ka schema bnane ke liya
+see code (0001) in model/User.ts ab iska mtlb h ki ye structure ban gya ab is schema ka data type specify karna ho kyoki ts me karna padta h to is interface ka nam likhke kar skte h....
+
+fir hmne simply ek schema create kiya isi interface ki help se see code(0002) in model/User.ts
+kyoki aise define karte h dekho const a :int = 3;
+to aise hi MessageSchema : Schema<Message> matlab MessageSchema h Schema type ka aur Schema ka ref Message...
+
+code(0003)
+agar hme jaise email verify karni h to hm rejex ka use kar skte h regular exp...
+see User.ts in model 
+
+code(0004)......
+see const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose.model<User>("User", UserSchema);
+User.ts in model yha hm pehle wale statement me || ki ye dekh rhe h ki pehle se h bhi model ya nhi kyoki yha react node ki tarah sirf ek bar run nhi hoti yani compile next js life time me
+check karenge by mongoose.models.User as ke bad wala type indigator ts ke liye
+|| ke bad wala create karega User <User> whi typeS....
