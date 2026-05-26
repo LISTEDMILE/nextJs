@@ -52,5 +52,28 @@ see dbConnect.ts in lib hmne mongo uri se connect kiya hogya to thik nhi to '' l
 
 db.connections[0].readyState me aata h connection ready state me h ya nhi...
 
-process.exit() karenge if connection fail hua kyoki connection hua nhi to gently apni process ko band kar denge...
+process.exit() karenge if connection fail hua kyoki connection hua nhi to gently apni process ko band kar denge....../
+
+
+
+chalo ab resend setup karte h email verification ke liye
+sabse pehle resend pe jake wha ek key generate karenge uski help se email jaega
+fir hmne ek resend.ts file bnai lib me jo us key se connect karega
+ab ek helper function bnaya helper folder me sendVerificationEmail file me
+
+ab ek alag hi folder bna liya root me jisme emails templates rakh lenge to verificationEmail ke liye ek design bna liya ye hm docs se dekh skte h....
+
+ab Api Response ko handle karne ke liye hmne ek defined interface design kar diya types folder me
+jisme matlab har api me ye fields aaenge aur jo sabme nhi aane wo optional by ?
+
+ab hm jaenge helper folder sendVerificationEmail file me aur ek function define karenge jo email vagerah leke ek promise type return karega aur wo ApiResponse type ka promise hoga jo ki abhi hmne define kiya api response kaise jane chahiye wala..
+
+bas fir hmne wo template jo bnai thi verificationEmail.tsx in emails folder at root usko bhej diya aur ye resend ka syntax docs se........./
+
+
+ab app folder me api folder bnaenge (( api nam hi rakhna h kyoki api nam ke folder se hi api server hoti h nextjs me)) uske andar signUp folder aur use route.ts route.ts nam bhi yhi rakhna h jarur
+
+
+
+
 
