@@ -33,4 +33,24 @@ see verifySchema.ts is Schema hm kisi kisi property ke liye {Message:"Message"} 
 
 
 code (0007) ..........
+see signInSchema in Schemas
 identifier is just email and username kind of thing
+
+
+see nextjs me aisa nhi hota ek bar server chalu to chalta hi rhe jaise ki node ya react me to jaise hi request jati h server db se connect karta h aur baki services
+to hm jab bhi api call karenge ya kuch bhi to pehle check karenge service chalu h ya db se connect h h to thik nhi to connect karenge pehle....
+
+code (0008).......
+see lib/dbConnect.ts isConnected?:number ka mtlab ye jaruri to nhi ki isConnected aa hi jae agar ho to check karo
+ab hmne ek connection const bnaya iska type ConnectionObject aur isko initially empty rakha ab isConnected optional rakha to empty ho skta h but nhi hota to empty nahi rakh pate kyuki fir hme jarur rakhna hota isConnected
+
+async function kyuki db connect time lega aur ye return karega promise aur kis tarah ka promise pta nhi to <void>................/
+
+
+code (0009) ......
+see dbConnect.ts in lib hmne mongo uri se connect kiya hogya to thik nhi to '' le lega jisse ofcourse bad me error generate hoga jisko handle karenge...
+
+db.connections[0].readyState me aata h connection ready state me h ya nhi...
+
+process.exit() karenge if connection fail hua kyoki connection hua nhi to gently apni process ko band kar denge...
+
