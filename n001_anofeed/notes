@@ -20,3 +20,17 @@ see const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose
 User.ts in model yha hm pehle wale statement me || ki ye dekh rhe h ki pehle se h bhi model ya nhi kyoki yha react node ki tarah sirf ek bar run nhi hoti yani compile next js life time me
 check karenge by mongoose.models.User as ke bad wala type indigator ts ke liye
 || ke bad wala create karega User <User> whi typeS....
+
+
+code(0005) ...............
+zod is used for validation easier
+see Schemas folder ek const se export kar skte h structure aur structure ke liye simple z.jo bhi validation chahiye
+ek hi value h jaise ki username to sidha z. nhi to z.object({})
+
+
+code(0006) .......
+see verifySchema.ts is Schema hm kisi kisi property ke liye {Message:"Message"} na likhke jise direct "Message" likhte the kar skte h but not sabme...
+
+
+code (0007) ..........
+identifier is just email and username kind of thing
