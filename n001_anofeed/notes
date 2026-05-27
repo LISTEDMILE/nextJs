@@ -71,7 +71,22 @@ ab hm jaenge helper folder sendVerificationEmail file me aur ek function define 
 bas fir hmne wo template jo bnai thi verificationEmail.tsx in emails folder at root usko bhej diya aur ye resend ka syntax docs se........./
 
 
+
 ab app folder me api folder bnaenge (( api nam hi rakhna h kyoki api nam ke folder se hi api server hoti h nextjs me)) uske andar signUp folder aur use route.ts route.ts nam bhi yhi rakhna h jarur
+code (0010)........
+ab route me route handle karne ke liye ek function bnaya ab isme yha define bhi karna hoga ki kis tarah ki req h aur function ke parameter request: aur request ka type bhi Request hi h
+
+see route yha seedha app me api me check hoga like signUp folder matlab /signUp me route.ts wali file h signUp route me /signUp me..
+
+nextjs express res se halka sa alag h see app/api/signUp/route.ts.../
+
+
+ab nextAuth
+api folder me auth folder
+auth folder me [...nextauth] folder
+uske andar options.ts and route.ts bilkul same hi hona chahiye.....
+
+
 
 
 
