@@ -80,15 +80,3 @@ see route yha seedha app me api me check hoga like signUp folder matlab /signUp 
 
 nextjs express res se halka sa alag h see app/api/signUp/route.ts.../
 
-
-ab nextAuth
-api folder me auth folder
-auth folder me [...nextauth] folder
-uske andar options.ts and route.ts bilkul same hi hona chahiye.....
-
-
-
-
-
-
-

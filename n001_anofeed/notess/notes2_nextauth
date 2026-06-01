@@ -1,0 +1,626 @@
+NEXTAUTH FLOW
+
+1. User clicks Login
+        ↓
+2. signIn() calls authorize()
+        ↓
+3. authorize()
+   - Connects DB
+   - Finds user
+   - Checks verification
+   - Checks password
+   - Returns user if valid
+        ↓
+4. jwt() callback
+   - Receives user
+   - Stores custom data in token
+   (_id, username, isVerified, etc.)
+        ↓
+5. JWT saved in browser cookie
+        ↓
+6. Future requests send JWT automatically
+        ↓
+7. session() callback
+   - Reads data from token
+   - Exposes it in session.user
+        ↓
+8. useSession() / getServerSession()
+   - Returns session.user to frontend
+
+MEMORY TRICK:
+
+Database User
+      ↓
+jwt()
+      ↓
+Token (stored in cookie)
+      ↓
+session()
+      ↓
+Session (used by frontend)
+
+WHAT EACH FUNCTION DOES:
+
+authorize() = Verify user credentials
+jwt() = Save user data into token
+session() = Send token data to frontend
+strategy: "jwt" = Store session data inside JWT instead of DB sessions
+
+JWT SECURITY:
+
+JWT is stored on the client (browser cookie)
+BUT it is signed using NEXTAUTH_SECRET
+
+Client can:
+✓ Store JWT
+✓ Send JWT
+✓ Read JWT (don't store sensitive data)
+
+Client cannot:
+✗ Modify JWT and make it valid
+✗ Change role/userId/isAdmin fields
+
+Reason:
+If JWT is changed, signature verification fails
+and NextAuth rejects the token.
+
+Think of JWT as:
+"User ID Card + Server Signature"
+
+The user can carry the ID card,
+but cannot forge the server's signature.
+
+
+
+/////////////////////////////////////////////////////////////
+
+
+types/next-auth.d.ts
+
+NEXTAUTH TYPES FILE (next-auth.d.ts)
+
+PURPOSE:
+This file does NOT run any code.
+It only teaches TypeScript about custom fields added to
+User, JWT, and Session.
+
+PROBLEM:
+
+Default NextAuth knows only:
+
+session.user = {
+  name
+  email
+  image
+}
+
+But my app uses:
+
+_id
+username
+isVerified
+isAcceptingMessages
+
+Without this file:
+
+session.user.username ❌
+token._id ❌
+
+TypeScript throws errors.
+
+------------------------------------------------
+
+declare module "next-auth"
+
+Used to extend NextAuth's built-in types.
+
+------------------------------------------------
+
+interface User
+
+Adds custom fields to the User object.
+
+User can now have:
+
+_id
+username
+isVerified
+isAcceptingMessages
+
+Used mainly inside:
+
+jwt({ token, user })
+
+------------------------------------------------
+
+interface Session
+
+Adds custom fields to:
+
+session.user
+
+Now I can safely use:
+
+session.user._id
+session.user.username
+session.user.isVerified
+
+------------------------------------------------
+
+& DefaultSession["user"]
+
+Keeps default NextAuth fields:
+
+name
+email
+image
+
+and adds my custom fields.
+
+Result:
+
+session.user = {
+  name,
+  email,
+  image,
+  _id,
+  username,
+  isVerified,
+  isAcceptingMessages
+}
+
+------------------------------------------------
+
+declare module "next-auth/jwt"
+
+Extends JWT type.
+
+Now token can contain:
+
+token._id
+token.username
+token.isVerified
+token.isAcceptingMessages
+
+Needed because in jwt() callback I do:
+
+token._id = user._id
+token.username = user.username
+
+------------------------------------------------
+
+MEMORY TRICK:
+
+This file is a TYPE DICTIONARY.
+
+It tells TypeScript:
+
+User can contain:
+  _id
+  username
+  isVerified
+
+JWT can contain:
+  _id
+  username
+  isVerified
+
+Session.user can contain:
+  _id
+  username
+  isVerified
+
+------------------------------------------------
+
+IMPORTANT:
+
+This file DOES NOT:
+
+❌ Store data
+❌ Create JWTs
+❌ Create Sessions
+❌ Run in the browser
+
+This file ONLY provides types.
+
+Runtime (Actual Data Flow):
+
+Database User
+      ↓
+jwt()
+      ↓
+Token
+      ↓
+session()
+      ↓
+Frontend
+
+TypeScript Flow:
+
+next-auth.d.ts
+      ↓
+Tells TS what fields exist
+      ↓
+No type errors
+      ↓
+Autocomplete works
+
+ONE-LINE SUMMARY:
+
+This file extends NextAuth's default TypeScript types so my custom fields (_id, username, isVerified, isAcceptingMessages) can be used on User, JWT, and Session without TypeScript errors.
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+MIDDLEWARE NOTES
+
+PURPOSE:
+Middleware acts as a Security Guard.
+
+It runs BEFORE a page loads and decides:
+- Allow access
+- Redirect user
+
+------------------------------------------------
+
+WHY DO WE NEED IT?
+
+Without middleware:
+
+Not Logged In User
+        ↓
+Can try opening:
+/dashboard
+
+Logged In User
+        ↓
+Can still open:
+/sign-in
+/sign-up
+
+This creates bad user experience and security issues.
+
+------------------------------------------------
+
+REQUEST FLOW
+
+Browser
+   ↓
+Middleware
+   ↓
+Page
+
+Middleware always runs before the page.
+
+------------------------------------------------
+
+JWT CONNECTION
+
+User Login
+    ↓
+JWT stored in browser cookie
+    ↓
+Middleware reads JWT
+    ↓
+Decides whether user is authenticated
+
+------------------------------------------------
+
+getToken()
+
+const token = await getToken({ req })
+
+Purpose:
+Read JWT from browser cookie.
+
+Logged In User:
+token = {
+  _id,
+  username,
+  ...
+}
+
+Not Logged In:
+token = null
+
+MEMORY:
+getToken() = "Am I logged in?"
+
+------------------------------------------------
+
+matcher
+
+Tells Next.js where middleware should run.
+
+Example:
+
+matcher = [
+  '/',
+  '/sign-in',
+  '/sign-up',
+  '/verify/:path*',
+  '/dashboard/:path*'
+]
+
+Middleware runs only on these routes.
+
+------------------------------------------------
+
+RULE 1
+
+If token exists
+(User is logged in)
+
+and user tries to visit:
+
+/sign-in
+/sign-up
+/
+/verify
+
+Redirect to:
+
+/dashboard
+
+Reason:
+Logged in users don't need auth pages.
+
+FLOW:
+
+Logged In
+    ↓
+Open /sign-in
+    ↓
+Redirect /dashboard
+
+------------------------------------------------
+
+RULE 2
+
+If token does NOT exist
+
+and user tries:
+
+/dashboard
+
+Redirect to:
+
+/sign-in
+
+Reason:
+Unauthenticated users cannot access dashboard.
+
+FLOW:
+
+Not Logged In
+      ↓
+Open /dashboard
+      ↓
+Redirect /sign-in
+
+------------------------------------------------
+
+NextResponse.redirect()
+
+Used to send user to another page.
+
+Example:
+
+redirect('/sign-in')
+
+------------------------------------------------
+
+NextResponse.next()
+
+Means:
+
+Everything is okay.
+Continue loading page.
+
+------------------------------------------------
+
+WHY NOT useSession()?
+
+Middleware runs on Server/Edge before React loads.
+
+useSession() only works inside React components.
+
+Therefore middleware uses:
+
+getToken()
+
+instead of
+
+useSession()
+
+------------------------------------------------
+
+IS MIDDLEWARE REQUIRED?
+
+NO.
+
+You can protect pages manually:
+
+const session = await getServerSession()
+
+if (!session) {
+  redirect('/sign-in')
+}
+
+But you'll repeat this on every protected page.
+
+Middleware lets you:
+
+Write once
+Protect many routes
+
+------------------------------------------------
+
+MEMORY TRICK
+
+JWT = ID Card
+
+getToken()
+      ↓
+Read ID Card
+
+Middleware
+      ↓
+Security Guard
+
+No Token?
+      ↓
+No Dashboard
+
+Has Token?
+      ↓
+No Sign-In Page
+
+Otherwise
+      ↓
+Allow Access
+
+------------------------------------------------
+
+ONE-LINE SUMMARY
+
+Middleware is a security guard that runs before pages load, reads the JWT using getToken(), and redirects users based on whether they are authenticated.
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+
+NEXTAUTH ROUTE HANDLER
+
+PURPOSE:
+
+Creates NextAuth API endpoints.
+
+File usually:
+
+app/api/auth/[...nextauth]/route.ts
+
+------------------------------------------------
+
+import NextAuth from "next-auth/next";
+
+Imports NextAuth function.
+
+Think:
+
+NextAuth = Authentication Engine
+
+------------------------------------------------
+
+import { authOptions } from "./options";
+
+Imports configuration from:
+
+options.ts
+
+Contains:
+
+- Providers
+- JWT callbacks
+- Session callbacks
+- Secret
+- Pages
+
+------------------------------------------------
+
+const handler = NextAuth(authOptions)
+
+Initializes NextAuth using your configuration.
+
+Think:
+
+NextAuth
+    +
+authOptions
+    ↓
+Authentication System Ready
+
+------------------------------------------------
+
+handler
+
+Contains all NextAuth API logic.
+
+Examples:
+
+/api/auth/signin
+/api/auth/signout
+/api/auth/session
+/api/auth/callback
+
+------------------------------------------------
+
+export { handler as GET, handler as POST }
+
+Makes the same handler respond to:
+
+GET requests
+POST requests
+
+Next.js App Router requires exporting HTTP methods.
+
+------------------------------------------------
+
+FLOW
+
+User clicks Login
+        ↓
+signIn()
+        ↓
+Request sent to
+/api/auth/signin
+        ↓
+handler receives request
+        ↓
+authorize() runs
+        ↓
+JWT created
+        ↓
+User logged in
+
+------------------------------------------------
+
+MEMORY TRICK
+
+options.ts
+    ↓
+Rules
+
+route.ts
+    ↓
+Starts NextAuth using those rules
+
+------------------------------------------------
+
+IMPORTANT
+
+This file DOES NOT:
+
+❌ Verify passwords
+❌ Create JWT manually
+❌ Connect database
+
+Those are handled in authOptions.
+
+This file ONLY:
+
+✓ Starts NextAuth
+✓ Creates auth API routes
+✓ Handles GET and POST requests
+
+------------------------------------------------
+
+ONE-LINE SUMMARY
+
+This file initializes NextAuth with authOptions and exposes the authentication API endpoints required for login, logout, sessions, and callbacks.
