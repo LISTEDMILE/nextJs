@@ -3,7 +3,7 @@ import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
   interface User {
-    _id?: String;
+    _id?: string;
     isVerified?: boolean;
     isAcceptingMessages?: boolean;
     username?: String;

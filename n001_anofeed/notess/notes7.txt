@@ -1,0 +1,248 @@
+FETCH MESSAGES API NOTES
+
+app/api/get-messages/route.ts
+
+PURPOSE:
+
+Get all anonymous messages belonging
+to the currently logged-in user.
+
+Example:
+
+User Dashboard
+      ↓
+Load Messages
+      ↓
+Call This API
+      ↓
+Return All Messages
+
+------------------------------------------------
+
+AUTHENTICATION
+
+const session =
+await getServerSession(authOptions)
+
+Purpose:
+
+Identify current logged-in user.
+
+Without session:
+Anyone could read messages.
+
+------------------------------------------------
+
+SESSION CHECK
+
+if (!session || !session.user)
+
+Meaning:
+
+User not logged in.
+
+Return:
+
+401 Unauthorized
+
+------------------------------------------------
+
+GET USER ID
+
+const userId =
+new mongoose.Types.ObjectId(user._id)
+
+Purpose:
+
+Convert string ID from JWT/session
+back into MongoDB ObjectId.
+kyoki hmne nextauth me setup karte time as string save ki h ab kuch jagah pe kam chal jata h usse but aggregation ke liye yhi chahiye..
+
+------------------------------------------------
+
+AGGREGATION PIPELINE
+
+UserModel.aggregate([...])
+
+Purpose:
+
+Perform advanced database operations.
+
+Think:
+
+find() = Simple Query
+
+aggregate() = Multi-Step Query
+
+STEP 1
+
+{ $match: { _id: userId }}
+
+Purpose:
+
+Find current user.
+
+
+STEP 2
+
+{  $unwind: "$messages" }
+
+Purpose:
+
+Break messages array into separate documents.
+
+Before:
+
+{
+ messages:[
+   msg1,
+   msg2,
+   msg3
+ ]
+}
+
+After:
+
+Document 1 → msg1
+
+Document 2 → msg2
+
+Document 3 → msg3
+
+------------------------------------------------
+
+WHY UNWIND?
+
+Because MongoDB cannot easily sort
+individual messages inside an array.
+
+Need:
+
+Array
+ ↓
+Separate Documents
+ ↓
+Sort
+ ↓
+Rebuild Array
+
+------------------------------------------------
+
+STEP 3
+
+{
+ $sort:{
+   "messages.createdAt": -1
+ }
+}
+
+Purpose:
+
+Newest messages first.
+
+-1 = Descending
+
+Example:
+
+10 PM
+8 PM
+5 PM
+
+------------------------------------------------
+
+STEP 4
+
+{
+ $group:{
+   _id:"$_id",
+   messages:{
+     $push:"$messages"
+   }
+ }
+}
+
+Purpose:
+
+Rebuild messages array.
+
+Before:
+
+msg1
+msg2
+msg3
+
+After:
+
+{
+ messages:[
+   msg1,
+   msg2,
+   msg3
+ ]
+}
+
+But now sorted.
+
+------------------------------------------------
+
+VISUAL FLOW
+
+User
+ ↓
+Messages Array
+ ↓
+Unwind
+ ↓
+Individual Messages
+ ↓
+Sort
+ ↓
+Group
+ ↓
+Sorted Messages Array
+
+------------------------------------------------
+
+RESULT
+
+user = [
+ {
+   _id: ...,
+   messages:[...]
+ }
+]
+
+------------------------------------------------
+
+NO USER FOUND
+
+if (!user || user.length === 0)
+
+Return:
+
+{
+ success:false,
+ message:"User not found"
+}
+
+------------------------------------------------
+
+SUCCESS RESPONSE
+
+{
+ success:true,
+ messages:user[0].messages
+}
+
+------------------------------------------------
+
+WHY USE AGGREGATE?
+
+Because we need:
+
+✓ Find User
+✓ Extract Messages
+✓ Sort Messages
+✓ Return Sorted Array
+
+All in one query.

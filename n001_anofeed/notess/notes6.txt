@@ -10,6 +10,40 @@ Allows a logged-in user to:
 
 -------------------------------------------------
 
+as User
+
+Purpose:
+Tell TypeScript what type a value should be treated as.
+
+------------------------------------------------
+
+Without Assertion
+
+session.user
+      ↓
+Default NextAuth User
+      ↓
+No _id
+No username
+
+TypeScript Error
+
+------------------------------------------------
+
+With Assertion
+
+session.user as User
+      ↓
+Extended User Type
+      ↓
+_id available
+username available
+
+No TypeScript Error
+
+-----------------------------------------------------
+
+
 AUTHENTICATION FLOW
 
 getServerSession(authOptions)
