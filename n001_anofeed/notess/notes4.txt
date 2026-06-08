@@ -1,0 +1,142 @@
+USERNAME AVAILABILITY API NOTES
+
+api / auth / checkUsername
+
+PURPOSE:
+
+Checks whether a username is available before signup.
+
+Example:
+
+User enters:
+john123
+
+↓
+
+API checks database
+
+↓
+
+Returns:
+
+"Username is available"
+
+OR
+
+"Username is already taken"
+
+------------------------------------------------
+
+ZOD VALIDATION
+
+jo zod se hmne schema bnaya tha wo validate kar rhe h matlab username jo h wo usernameVlidation jo zod se validation object bnaya h usko follow kar rha h kya..
+
+const UsernameQuerySchema = z.object({
+  username: usernameValidation
+})
+
+Purpose:
+
+Validate incoming username.
+
+Checks rules from:
+
+usernameValidation
+
+Examples:
+
+✓ john123
+✓ my_username
+
+✗ @john
+✗ a
+✗ very-long-invalid-name
+
+------------------------------------------------
+
+GET(request)
+
+Runs whenever:
+
+GET /api/check-username
+
+is called.
+
+------------------------------------------------
+
+GETTING QUERY PARAMS
+
+const { searchParams } = new URL(request.url)
+
+Example URL:
+
+/api/check-username?username=john123
+
+Result:
+
+searchParams.get("username")
+
+returns:
+
+"john123"
+
+------------------------------------------------
+
+QUERY PARAM OBJECT
+
+const queryParam = {
+  username: searchParams.get("username")
+}
+
+Result:
+
+{
+  username: "john123"
+}
+
+------------------------------------------------
+
+safeParse()
+ye check karta h UsernameQuerySchema jo hmne liya h matlab zod ka schema with jo data aaya h.
+
+const result =
+UsernameQuerySchema.safeParse(queryParam)
+
+Purpose:
+
+Validate data safely.
+
+Valid:
+
+{
+  success: true,
+  data: {...}
+}
+
+Invalid:
+
+{
+  success: false,
+  error: ...
+}
+
+------------------------------------------------
+
+IF VALIDATION FAILS
+
+Example:
+
+username = "@@@"
+
+safeParse() fails
+
+Returns:
+
+{
+  success: false,
+  message: "Invalid username"
+}
+
+Status:
+
+400 (Bad Request)
