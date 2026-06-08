@@ -1,0 +1,17 @@
+
+decodeURIComponent()
+
+const decodedUsername =
+decodeURIComponent(username)
+
+Purpose:
+
+Converts encoded URL text into normal text.
+
+Example:
+
+john%20doe
+      ↓
+john doe
+
+Used because usernames may arrive URL encoded.

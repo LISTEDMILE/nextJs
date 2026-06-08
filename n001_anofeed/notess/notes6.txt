@@ -1,0 +1,48 @@
+MESSAGE ACCEPTANCE API NOTES
+api/accept-Messages
+
+PURPOSE:
+
+Allows a logged-in user to:
+
+1. Turn message acceptance ON/OFF
+2. Check current message acceptance status
+
+-------------------------------------------------
+
+AUTHENTICATION FLOW
+
+getServerSession(authOptions)
+
+it always need authOptions..
+
+Purpose:
+
+Get currently logged-in user from JWT.
+
+Flow:
+
+JWT Cookie
+      ↓
+getServerSession()
+      ↓
+Session Object
+      ↓
+Current User
+
+------------------------------------------------
+
+DATABASE UPDATE
+
+findByIdAndUpdate(
+ userId,
+ { isAcceptingMessage: acceptMessages },
+ { new: true }
+)
+
+Meaning:
+
+new:true matlab update karne ke bad wala return kardo
+
+------------------------------------------------
+
