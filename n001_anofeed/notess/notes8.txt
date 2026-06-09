@@ -1,0 +1,334 @@
+AI MESSAGE SUGGESTION API NOTES (MODERN AI SDK)
+
+PURPOSE:
+
+Generate anonymous conversation starter questions
+using AI.
+
+Example Output:
+
+"What's a hobby you've recently started?||
+If you could instantly learn one skill, what would it be?||
+What's a small thing that makes your day better?"
+
+Used For:
+
+"Suggest Messages" button
+
+------------------------------------------------
+
+FLOW
+
+User clicks:
+Generate Suggestions
+       ↓
+Frontend calls API
+       ↓
+Prompt sent to AI
+       ↓
+AI generates questions
+       ↓
+Stream response back
+       ↓
+User sees suggestions
+
+------------------------------------------------
+
+EDGE RUNTIME
+
+export const runtime = "edge"
+
+Purpose:
+
+Run this route on Vercel Edge Network.
+
+IMPORTANT:
+
+In Express:
+
+Server starts once
+      ↓
+Keeps running forever
+
+Example:
+
+app.listen(3000)
+
+----------------------------
+
+In Next.js:
+
+Each route is serverless/edge function
+
+Request Comes
+      ↓
+Function Runs
+      ↓
+Response Sent
+      ↓
+Function Ends
+
+Because of this:
+
+Database connections
+cannot be assumed to exist.
+
+That's why we usually create:
+
+dbConnect()
+
+which reuses existing connection
+or creates one if needed.
+
+In this AI route:
+
+No database is used.
+
+So no dbConnect() needed.
+
+Edge Runtime tells Next.js:
+
+Run this route using Edge infrastructure.
+
+Benefits:
+
+✓ Lower Latency
+✓ Faster Cold Starts
+✓ Better Streaming
+✓ Closer To User
+
+Think:
+
+Normal Server
+      ↓
+One Location
+
+Edge Runtime
+      ↓
+Many Global Locations
+
+------------------------------------------------
+
+AI SDK
+
+import { streamText } from "ai"
+import { openai } from "@ai-sdk/openai"
+
+Purpose:
+
+Connect AI SDK with OpenAI.
+
+Think:
+
+streamText()
+      ↓
+Generate AI Response
+
+openai()
+      ↓
+Choose OpenAI Model
+
+------------------------------------------------
+
+PROMPT
+
+const prompt = "..."
+
+Purpose:
+
+Instructions given to AI.
+
+Tells AI:
+
+Generate 3 Questions
+
+Use:
+
+||
+
+as separator
+
+Avoid:
+
+Sensitive Topics
+Personal Questions
+
+Focus On:
+
+Friendly Conversation Starters
+
+------------------------------------------------
+
+MODEL
+
+model: openai("gpt-4o-mini")
+
+Purpose:
+
+Choose AI model.
+
+AI reads prompt
+and generates output.
+
+------------------------------------------------
+
+streamText()
+
+const result = streamText(...)
+
+Purpose:
+
+Send prompt to AI
+and start generation.
+
+Returns:
+
+Streaming result
+
+------------------------------------------------
+
+STREAMING
+
+VERY IMPORTANT
+
+Without Streaming:
+
+AI generates everything
+       ↓
+Returns full response
+
+User waits
+
+------------------------------------------------
+
+With Streaming:
+
+AI generates
+      ↓
+Immediately sends chunks
+
+Example:
+
+What's...
+What's a hobby...
+What's a hobby you've...
+
+Feels much faster.
+
+------------------------------------------------
+
+AI RESPONSE
+
+const result = streamText(...)
+
+Contains:
+
+Streaming AI output
+
+------------------------------------------------
+
+toDataStreamResponse()
+
+return result.toDataStreamResponse()
+
+Purpose:
+
+Convert AI stream into
+Next.js Response.
+
+Frontend receives text
+while AI is still generating.
+
+Think:
+
+AI Stream
+      ↓
+Web Response Stream
+      ↓
+Frontend
+
+------------------------------------------------
+
+ERROR HANDLING
+
+catch(error)
+
+Handles:
+
+Invalid API Key
+Rate Limits
+AI Provider Errors
+Network Issues
+Unexpected Errors
+
+------------------------------------------------
+
+EXAMPLE
+
+Wrong API Key
+      ↓
+AI Error
+      ↓
+Catch Block
+      ↓
+500 Response
+
+------------------------------------------------
+
+COMPLETE FLOW
+
+Frontend
+    ↓
+POST Request
+    ↓
+Prompt Created
+    ↓
+streamText()
+    ↓
+OpenAI Model
+    ↓
+AI Generates Questions
+    ↓
+AI Stream
+    ↓
+toDataStreamResponse()
+    ↓
+Frontend Receives Questions
+
+------------------------------------------------
+
+MEMORY TRICK
+
+Prompt
+  ↓
+streamText()
+  ↓
+OpenAI
+  ↓
+AI Stream
+  ↓
+toDataStreamResponse()
+  ↓
+Frontend
+
+------------------------------------------------
+
+IMPORTANT
+
+This API DOES NOT:
+
+❌ Use Database
+❌ Use NextAuth
+❌ Save Messages
+
+This API ONLY:
+
+✓ Generate Questions
+✓ Stream AI Output
+✓ Return Suggestions
+
+------------------------------------------------
+
+ONE-LINE SUMMARY
+
+This API sends a prompt to OpenAI using the AI SDK, streams generated conversation starter questions back to the frontend in real time, and uses Edge Runtime for fast global delivery.
