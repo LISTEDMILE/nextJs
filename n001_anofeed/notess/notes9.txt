@@ -1,0 +1,476 @@
+SIGNUP PAGE NOTES
+app/(auth)/sign-up/page.txt
+
+REACT HOOK FORM
+
+const form = useForm(...)
+also used shadcn
+
+Purpose:
+
+Manage the complete form.
+
+Think:
+
+Without React Hook Form
+
+username state
+email state
+password state
+error state
+
+Many states to manage.
+
+With React Hook Form
+
+Single form controller manages
+everything.
+
+------------------------------------------------
+
+ZOD VALIDATION
+
+resolver:
+zodResolver(signUpSchema)
+
+Purpose:
+
+Connect Zod schema with React Hook Form.
+
+Flow:
+
+User Input
+      ↓
+React Hook Form
+      ↓
+Zod Schema Validation
+      ↓
+Valid / Invalid
+
+Example:
+
+Username less than 2 characters
+
+↓
+
+Validation Failed
+
+↓
+
+Error Message Shown
+
+------------------------------------------------
+
+USERNAME STATE
+
+const [username,setUsername]
+
+Purpose:
+
+Store username separately.
+
+Why?
+
+Because username availability checking
+needs its own state.
+
+Example:
+
+User Types:
+
+john
+
+↓
+
+username = "john"
+
+------------------------------------------------
+
+DEBOUNCE
+
+const debounced =
+useDebounceCallback(
+ setUsername,
+ 1000
+)
+
+Purpose:
+
+Prevent unnecessary API requests.
+yha pe username useState hone ke bad bhi update 1000ms ke bad hoga...
+
+Without Debounce:
+
+User Types:
+
+j
+jo
+joh
+john
+
+↓
+
+4 API Requests
+
+With Debounce:
+
+User Types:
+
+john
+
+↓
+
+Wait 1 Second
+
+↓
+
+1 API Request
+
+------------------------------------------------
+
+ROUTER
+
+const router = useRouter()
+
+Purpose:
+
+Navigate user to another page.
+
+Example:
+
+router.replace(
+ "/verify/john"
+)
+
+Moves user to:
+
+/verify/john
+
+------------------------------------------------
+
+ TOAST
+toast shadcn ka componnet h dialog box ki tarah message represent karne ke liye
+
+also toast use karne ke liye layout.txt main file me toast component add karna padta h..
+
+toast.success(
+ "Success",
+ {
+  description:
+  res.data.message
+ }
+)
+
+Purpose:
+
+Show success notification.
+
+Example:
+
+✓ Success
+
+Account Created
+
+------------------------------------------------
+
+USERNAME INPUT FLOW
+
+User Types Username
+          ↓
+Input onChange
+          ↓
+field.onChange()
+          ↓
+React Hook Form Updated
+          ↓
+debounced()
+          ↓
+Wait 1 Second
+          ↓
+setUsername()
+          ↓
+useEffect()
+          ↓
+API Request
+          ↓
+Backend Response
+          ↓
+usernameMessage Updated
+          ↓
+UI Updated
+
+------------------------------------------------
+
+COMPLETE PAGE FLOW
+
+Open Signup Page
+          ↓
+Enter Username
+          ↓
+Check Username Availability
+          ↓
+Enter Email
+          ↓
+Enter Password
+          ↓
+Click Sign Up
+          ↓
+Zod Validation
+          ↓
+Valid?
+      ↓       ↓
+     No      Yes
+      ↓        ↓
+ Show Error  API Request
+                ↓
+         Create Account
+                ↓
+          Success?
+            ↓      ↓
+           No     Yes
+            ↓       ↓
+      Error Toast Success Toast
+                       ↓
+              Verification Page
+
+------------------------------------------------
+
+WHY THESE TOOLS?
+
+React Hook Form
+→ Form Management
+
+Zod
+→ Validation
+
+Axios
+→ API Requests
+
+Sonner
+→ Toast Notifications
+
+useEffect
+→ React To Username Changes
+
+Debounce
+→ Prevent API Spam
+
+Router
+→ Navigation Between Pages
+
+
+------------------------------------------------
+
+FORM COMPONENT
+
+<Form {...form}>
+
+Purpose:
+
+Provide React Hook Form context
+to all child components.
+
+Think:
+
+React Hook Form Controller
+            ↓
+         Form
+            ↓
+ All Form Fields Connected
+
+Without this:
+
+FormField components cannot
+access form state.
+
+------------------------------------------------
+
+HTML FORM
+
+<form
+ onSubmit={form.handleSubmit(onSubmit)}
+>
+
+Purpose:
+
+Handle form submission.
+
+Flow:
+
+Click Submit
+      ↓
+handleSubmit()
+      ↓
+Run Zod Validation
+      ↓
+Valid?
+ ↓         ↓
+No        Yes
+ ↓          ↓
+Errors    onSubmit()
+
+------------------------------------------------
+
+FORMFIELD
+
+<FormField
+ name="username"
+ control={form.control}
+/>
+
+Purpose:
+
+Register username field with
+React Hook Form.
+
+Think:
+
+React Hook Form needs to know:
+
+"This input belongs to username"
+
+------------------------------------------------
+
+CONTROL PROP
+
+control={form.control}
+
+Purpose:
+
+Connect field with form controller.
+
+Without this:
+
+Field is not managed by
+React Hook Form.
+
+------------------------------------------------
+
+RENDER FUNCTION
+
+render={({ field }) => (...)}
+
+Purpose:
+
+Give access to field methods.
+
+Inside field:
+
+field.value
+
+Current value.
+
+field.onChange()
+
+Updates React Hook Form.
+
+field.onBlur()
+
+Tracks focus changes.
+
+------------------------------------------------
+
+USERNAME FIELD
+
+<FormField
+ name="username"
+>
+
+Purpose:
+
+Collect username.
+
+Example:
+
+john123
+
+------------------------------------------------
+
+FORMITEM
+
+<FormItem>
+
+Purpose:
+
+Wrapper around field.
+
+Contains:
+
+Label
+Input
+Errors
+Extra Information
+
+------------------------------------------------
+
+FORMLABEL
+
+<FormLabel>
+ Username
+</FormLabel>
+
+Purpose:
+
+Display field title.
+
+Output:
+
+Username
+
+above textbox.
+
+------------------------------------------------
+
+INPUT
+
+<Input
+ {...field}
+/>
+
+Purpose:
+
+Actual textbox.
+
+{...field} provides:
+
+value
+
+onChange
+
+onBlur
+
+ref
+
+Automatically connects input
+with React Hook Form.
+
+------------------------------------------------
+
+USERNAME CHANGE FLOW
+
+onChange={(e)=>{
+ field.onChange(e)
+ debounced(e.target.value)
+}}
+
+Purpose:
+
+Perform two actions.
+
+STEP 1
+
+field.onChange(e)
+
+Update React Hook Form state.
+
+Example:
+
+User Types:
+
+john
+
+↓
+
+Form State Updated
+
+------------------------------------------------
