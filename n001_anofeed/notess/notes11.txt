@@ -1,0 +1,115 @@
+fir same components me ui components bne navbar aur message card same shadcn secret123
+
+but in navbar
+
+const { data: session } = useSession();
+
+Normally:
+
+const result = useSession();
+
+returns:
+
+{
+  data: session,
+  status: "authenticated"
+}
+
+Example:
+
+{
+  data: {
+    user: {
+      name: "John",
+      email: "john@gmail.com"
+    }
+  },
+  status: "authenticated"
+}
+
+--------------------------------
+
+Using destructuring:
+
+const { data: session } = useSession();
+
+means:
+
+Take the data property
+and rename it to session
+
+Equivalent to:
+
+const result = useSession();
+const session = result.data;
+3. What Does session Contain?
+
+Example session:
+
+{
+  user: {
+    username: "john",
+    email: "john@gmail.com",
+    _id: "123"
+  },
+  expires: "2026-06-20"
+}
+
+Now we can access:
+
+session.user
+
+or
+
+session.user.email
+
+or
+
+session.user.username
+
+---------------------------------------------
+
+5. Understanding This Line
+const user: User = session?.user as User;
+
+Breakdown:
+
+session?.user
+
+Gets user object from session.
+
+Example:
+
+{
+  _id: "123",
+  username: "john",
+  email: "john@gmail.com"
+}
+as User
+
+TypeScript type casting.
+
+It tells TypeScript:
+
+Trust me.
+This object follows my User interface.
+
+Example:
+
+interface User {
+  _id: string;
+  username: string;
+  email: string;
+}
+
+Now TypeScript knows:
+
+user.username
+user.email
+user._id
+
+exist.
+
+------------------------------
+
+for sign out simply signout call karenge next auth se cookies delete ho jaenge.....
