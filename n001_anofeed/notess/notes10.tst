@@ -1,0 +1,3 @@
+app/auth/verify
+
+jaise verify route ke sath hmne username bhi bheja tha query params me to dynamic data lene ke liye [var ka nam] ek aur folder use karte h uske andar aur fir isme bnate h page.tsx........
