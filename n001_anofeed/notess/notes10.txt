@@ -1,0 +1,47 @@
+app/auth/verify
+
+jaise verify route ke sath hmne username bhi bheja tha query params me to dynamic data lene ke liye [var ka nam] ek aur folder use karte h uske andar aur fir isme bnate h page.tsx........
+
+verify ui hua usbe bad
+ ===============================================
+
+ const res = await signIn("credentials", {
+  redirect: false,
+  identifier: data.identifier,
+  password: data.password,
+});
+
+This is the most important step.
+
+NextAuth receives:
+
+{
+  "identifier": "john",
+  "password": "secret123"
+}
+
+Then NextAuth:
+
+Finds user in database.
+Compares password.
+Creates session if valid.
+Returns result.
+Why redirect ?
+
+Without:
+
+redirect: false
+
+NextAuth automatically redirects.
+
+With:
+
+redirect: false
+
+We control everything ourselves.
+
+We can:
+
+Show custom toast
+Handle errors
+Redirect manually

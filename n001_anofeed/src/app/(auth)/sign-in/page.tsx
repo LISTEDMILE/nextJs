@@ -4,13 +4,10 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { signUpSchema } from "@/Schemas/SignUpSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError } from "axios";
-import { ApiResponse } from "@/types/ApiResponse";
 import {
   Form,
   FormField,
