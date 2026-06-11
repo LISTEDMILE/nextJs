@@ -6,7 +6,7 @@ import { User } from "next-auth";
 import mongoose from "mongoose";
 
 export async function GET(request: Request) {
-  dbConnect();
+ await dbConnect();
   const session = await getServerSession(authOptions);
   const user: User = session?.user as User;
 
@@ -21,23 +21,34 @@ export async function GET(request: Request) {
   }
 
   const userId = new mongoose.Types.ObjectId(user._id);
+ 
 
   try {
     const user = await UserModel.aggregate([
       { $match: { _id: userId } },
-      { $unwind: "messages" },
+      { $unwind: "$messages" },
       { $sort: { "messages.createdAt": -1 } },
       { $group: { _id: "$_id", messages: { $push: "$messages" } } },
     ]);
 
-    if (!user || user.length == 0) {
+    if (!user ) {
       return Response.json(
-      {
-        message: "User not found",
-        success: false,
-      },
-      { status: 401 },
-    );
+        {
+          message: "User not found",
+          success: false,
+        },
+        { status: 401 },
+      );
+    }
+
+     if ( user.length == 0) {
+      return Response.json(
+        {
+          message: "No Message Available",
+          success: false,
+        },
+        { status: 401 },
+      );
     }
 
     return Response.json(
@@ -49,7 +60,7 @@ export async function GET(request: Request) {
     );
   } catch (err) {
     console.error("Error fetching messages", err);
-     return Response.json(
+    return Response.json(
       {
         message: "Error fetching messages",
         success: false,

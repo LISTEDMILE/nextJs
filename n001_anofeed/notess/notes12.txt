@@ -1,0 +1,13 @@
+ 
+ ab karenge delete message ki api backend route in api/delete-message
+
+ isme ye querry userid wala user dhoondke usme se message array me se pull karega messageId wale message ko
+ 
+ const updateResult = await UserModel.updateOne(
+      { _id: user._id },
+      { $pull: { messages: { _id: messageId } } },
+    );
+
+    updateResult.modifiedCount kitne change huee..
+
+    if (!updateResult || updateResult.modifiedCount == 0) 

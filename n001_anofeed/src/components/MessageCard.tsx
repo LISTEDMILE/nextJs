@@ -73,7 +73,7 @@ export default function MessageCard({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <CardDescription>Card Description</CardDescription>
+      <CardDescription>{message.content}</CardDescription>
       </CardHeader>
       <CardContent></CardContent>
     </Card>
